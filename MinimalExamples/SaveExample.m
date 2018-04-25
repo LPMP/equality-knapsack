@@ -14,8 +14,8 @@ function []=SaveExample(c,w,b,name)
 	fprintf(f,'%d\n',length(c));
 	fclose(f);
 	
-	dlmwrite(name,c,'-append','delimiter',' ');
-	dlmwrite(name,w,'-append','delimiter',' ');
-	dlmwrite(name,b,'-append','delimiter',' ');
+	dlmwrite(name,c,'-append','delimiter',' ','precision','%.5f');
+	dlmwrite(name,w,'-append','delimiter',' ','precision','%.0f');
+	dlmwrite(name,b,'-append','delimiter',' ','precision','%.0f');
 	
 end
