@@ -8,7 +8,7 @@ end
 param = cplexoptimset('cplex');
 param.threads = 1;
 param.output.clonelog = 0;
-				%param.display = 'on';
+%param.display = 'on';
 
 d = 8;
 A = full(paralleltomo(d,[0:10:179],d,d));
@@ -22,31 +22,43 @@ for i=1:size(A,1)
   w = w(w>0);
   n = numel(w);
   
-  c = ones(n,1) + 0.2*randn(n,1);
-
+  c = round(ones(n,1) + 0.2*randn(n,1),5);
+  w = round(1e+5*w);
+  
+  assert( ~any(c <= 0) );
+  
   x = randi(2,n,1) - 1;
   while( sum(x) == n || sum(x) == 0 )
     x = randi(2,n,1) - 1;
   end
-
+  
+  ggt = gcd(w(1),w(2));
+  for j=3:n
+    ggt = gcd(ggt,w(j));
+  end
+  ggt = gcd(ggt,w*x);
+  w = w/ggt;
+  b = w*x;
+  
   example = struct;
   example.c = c;
   example.w = w;
-  example.b = w*x;
+  example.b = b;
   
-  x_rel = cplexlp(c,[],[],w,w*x,zeros(n,1),ones(n,1),[],param);
-  x_int = cplexbilp(c,[],[],w,w*x,[],param);
+  x_rel = cplexlp(c,[],[],w,b,zeros(n,1),ones(n,1),[],param);
+  x_int = cplexbilp(c,[],[],w,b,[],param);
+  
+  res = abs(abs(x_int - 0.5)-0.5);
+  assert(norm(res,'inf') < 1e-10);
   
   example.opt_int = c'*x_int;
   example.opt_rel = c'*x_rel;
   example.gap = c'*x_int - c'*x_rel;
   
   B(i,:) = [i n example.opt_int example.opt_rel example.gap];
-
-  if( i == 14 ), break; end
   
   SaveExample(c,w,w*x,sprintf('%s%03d_MiniExample.txt',oPath,i));
   save([oPath sprintf('%03d_MiniExample.mat',i)],'-struct','example');
 end
 
-dlmwrite([oPath 'table.txt'],B,'delimiter',' ','precision','%.5f');
+dlmwrite([oPath 'table.txt'],B,'delimiter',' ','precision','%.10f');

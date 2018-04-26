@@ -45,6 +45,16 @@ ExternalProject_Add(
    CONFIGURE_COMMAND ""
    )
 
+list(APPEND DEPENDENCIES PYBIND11_Project)
+ExternalProject_Add(
+   PYBIND11_Project
+   GIT_REPOSITORY "https://github.com/pybind/pybind11"
+   GIT_TAG "master"
+   INSTALL_COMMAND ""
+   BUILD_COMMAND ""
+   CONFIGURE_COMMAND ""
+   )
+   
 list(APPEND DEPENDENCIES PEGTL_Project)
 ExternalProject_Add(
    PEGTL_Project
