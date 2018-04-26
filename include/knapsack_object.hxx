@@ -3,7 +3,8 @@
 
 #include <config.hxx>
 #include <algorithm>
-
+#include <vector> 
+#include <numeric>
 
 namespace ekp {
 

@@ -1,6 +1,8 @@
 if(BUILD_TESTS)
   enable_testing()
   
+  add_executable(test_enumeration test_enumeration.cpp)
+
   add_executable(EKPObject EKP_Object_test.cxx)
 
   #target_sources(test_main PUBLIC temptest.cxx)
