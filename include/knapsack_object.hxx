@@ -25,14 +25,14 @@ namespace ekp {
 
     ekp_instance(std::vector<REAL> c,std::vector<INDEX> w,INDEX b)
       : costs_(c),weights_(w),b_(b),nVars_(costs_.size()) {
-
+      
       assert( weights_.size() > 2 );
       assert( weights_.size() == costs_.size() );
       assert( weights_.size() == nVars_ );
-
+      
       sorted_.resize(nVars_);
       std::iota(sorted_.begin(),sorted_.end(),0);
-
+      
       auto f = [this](INDEX i,INDEX j){
         REAL iv = costs_[i]/((REAL) weights_[i]);
         REAL jv = costs_[j]/((REAL) weights_[j]);
