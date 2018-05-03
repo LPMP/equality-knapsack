@@ -3,7 +3,7 @@
 
 #include <config.hxx>
 #include <algorithm>
-#include <vector> 
+#include <vector>
 #include <numeric>
 
 
@@ -25,14 +25,16 @@ namespace ekp {
 
     ekp_instance(std::vector<REAL> c,std::vector<INDEX> w,INDEX b)
       : costs_(c),weights_(w),b_(b),nVars_(costs_.size()) {
-      
+
       assert( weights_.size() > 2 );
       assert( weights_.size() == costs_.size() );
       assert( weights_.size() == nVars_ );
-      
+
+      sol_.resize(nVars_,0);
+
       sorted_.resize(nVars_);
       std::iota(sorted_.begin(),sorted_.end(),0);
-      
+
       auto f = [this](INDEX i,INDEX j){
         REAL iv = costs_[i]/((REAL) weights_[i]);
         REAL jv = costs_[j]/((REAL) weights_[j]);
@@ -49,6 +51,21 @@ namespace ekp {
     auto rhs(){ return b_; };
     auto numberOfVars(){ return nVars_; };
 
+    auto GetIntegerOptimal(){ return integerOptimal_; }
+    auto GetRelaxedOptimal(){ return relaxedOptimal_; }
+    void SetIntegerOptimal(REAL val){ integerOptimal_ = val; }
+    void SetRelaxedOptimal(REAL val){ relaxedOptimal_ = val; }
+
+    void SetSolution(INDEX i,INDEX val){ assert( i < nVars_); sol_[i] = val; }
+
+    template<typename V>
+    void GetSolution(V& sol){
+      sol.resize(nVars_);
+      for(INDEX i=0;i<nVars_;i++){
+        sol[i] = sol_[i];
+      }
+    }
+
   private:
 
     std::vector<INDEX> sorted_;
@@ -56,6 +73,12 @@ namespace ekp {
     std::vector<INDEX> weights_;
     INDEX b_;
     INDEX nVars_;
+
+    REAL relaxedOptimal_ = EKPINF;
+    REAL integerOptimal_ = EKPINF;
+
+    std::vector<INDEX> sol_;
+
   };
 
 }

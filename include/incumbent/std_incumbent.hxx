@@ -50,6 +50,20 @@ namespace ekp {
         incumbent(1.0,i);
       }
 
+      if( bestCost_ < EKPINF ){
+        e_.SetIntegerOptimal(bestCost_);
+        for(INDEX i=0;i<f_;i++){
+          e_.SetSolution(i,1);
+        }
+        for(INDEX i=f_+1;i<e_.numberOfVars();i++){
+          e_.SetSolution(i,0);
+        }
+        assert( xf_ < 2 );
+        e_.SetSolution(f_,xf_);
+        e_.SetSolution(k_,0);
+        e_.SetSolution(j_,1);
+      }
+
     }
 
     REAL BestCost(){ return bestCost_; }

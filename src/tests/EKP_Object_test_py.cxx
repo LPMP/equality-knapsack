@@ -4,5 +4,7 @@
 
 PYBIND11_MODULE(EKPSolvers,m){
   m.doc() = "Wrapper for EKP test";
+  
   m.def("ekp_test",&ekp_test,"Solving EKP");
+  m.def("GetProblem",&GetProblem,"Get EKP instance");
 }

@@ -3,10 +3,34 @@
 #include <knapsack_object.hxx>
 #include <knapsack_parser.hxx>
 #include <relax_solver/std_solver.hxx>
+#include <reduction/std_reduction.hxx>
 #include <incumbent/std_incumbent.hxx>
 #include <math.h>
 #include <algorithm>
 #include <tclap/CmdLine.h>
+#include <map>
+
+std::map<std::string,std::vector<ekp::REAL>> GetProblem(std::string f){
+
+  std::map<std::string,std::vector<ekp::REAL>> data;
+
+  auto m = ekp::parser::GetEKPData(f);
+
+  data["costs"] = m.costs;
+
+  std::vector<ekp::REAL> weights;
+  for(auto w = m.weights.begin();w != m.weights.end();w++ ){
+    weights.push_back(*w);
+  }
+  data["weights"] = weights;
+
+  std::vector<ekp::REAL> b;
+  b.push_back(m.b);
+  data["b"] = b;
+
+  return data;
+
+}
 
 std::vector<ekp::REAL> ekp_test(std::string f){
 
@@ -21,6 +45,7 @@ std::vector<ekp::REAL> ekp_test(std::string f){
   ekp_relax.solve();
 
   std::vector<ekp::REAL> v;
+  assert( ekp_relax.OptimalCost() == ekp.GetRelaxedOptimal() );
   v.push_back(ekp_relax.OptimalCost());
   v.push_back(ekp_relax.OptimalIndex());
 
@@ -55,6 +80,21 @@ std::vector<ekp::REAL> ekp_test(std::string f){
       w += ekp.weight(j);
       w += xf*ekp.weight(f);
       assert( w == ekp.rhs() );
+
+      std::vector<ekp::INDEX> sol;
+      ekp.GetSolution(sol);
+      w = 0;
+      for(size_t i=0;i<ekp.numberOfVars();i++){
+        w += sol[i]*ekp.weight(i);
+      }
+      assert( w == ekp.rhs() );
+
+      /*
+      * Pegging
+      */
+      ekp::std_reduction<ekp::ekp_instance> ekp_pegging(ekp,f);
+      ekp_pegging.pegging();
+
     }
   }
 

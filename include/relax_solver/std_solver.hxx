@@ -21,11 +21,13 @@ namespace ekp {
       REAL z = 0;
 
       for(INDEX i=0;i<e_.numberOfVars();i++){
+        e_.SetSolution(i,1);
         if( w + e_.weight(i) > e_.rhs() ){
           z += (e_.cost(i)/((REAL) e_.weight(i)))*(e_.rhs() - w);
 
           currentF_ = i;
           currentCost_ = z;
+          e_.SetRelaxedOptimal(z);
           break;
         }
         if( w + e_.weight(i) == e_.rhs() ){
@@ -34,6 +36,8 @@ namespace ekp {
           currentCost_ = z;
           currentF_ = i;
           integer_ = true;
+          e_.SetRelaxedOptimal(z);
+          e_.SetIntegerOptimal(z);
           break;
         }
         z += e_.cost(i);
