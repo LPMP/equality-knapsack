@@ -94,6 +94,8 @@ std::vector<ekp::REAL> ekp_test(std::string f){
       */
       ekp::std_reduction<ekp::ekp_instance> ekp_pegging(ekp,f);
       ekp_pegging.pegging();
+      v.push_back(ekp_pegging.fixed());
+      v.push_back(ekp_pegging.unkown());
 
     }
   }

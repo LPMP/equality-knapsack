@@ -24,6 +24,6 @@ for f in files:
     i = i + 1
     # a = v[4]
     # b = table[row, 2]
-    print(f, '-->', 'k={:.0f} f={:.0f} x_f={:.0f} j={:.0f}'.format(v[2], v[1], v[3], v[4]))
+    print(f, '-->', 'k={:.0f} f={:.0f} x_f={:.0f} j={:.0f} ... fixed={:.0f} , unknown={:.0f}'.format(v[2], v[1], v[3], v[4],v[6],v[7]))
     # print(f, '--> ', '{:5.7f}'.format(a), '{:5.7f}'.format(b), '{:1.5e}'.format(abs(a - b)))
 print('total: ', i)

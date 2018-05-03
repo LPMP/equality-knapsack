@@ -43,7 +43,19 @@ namespace ekp {
       std::sort(sorted_.begin(),sorted_.end(),f);
     }
 
-    void SetCost(INDEX i,REAL value){ assert(i < costs_.size()); costs_[sorted_[i]] = value; }
+    // void UpdateCosts(std::vector<REAL> c){
+    //   costs_ = c;
+    //
+    //   std::iota(sorted_.begin(),sorted_.end(),0);
+    //
+    //   auto f = [this](INDEX i,INDEX j){
+    //     REAL iv = costs_[i]/((REAL) weights_[i]);
+    //     REAL jv = costs_[j]/((REAL) weights_[j]);
+    //     return iv < jv;
+    //   };
+    //
+    //   std::sort(sorted_.begin(),sorted_.end(),f);
+    // }
 
     auto cost(INDEX i){ assert(i < costs_.size());  return costs_[sorted_[i]]; }
     auto weight(INDEX i){ assert(i < weights_.size()); return weights_[sorted_[i]]; }
@@ -56,6 +68,10 @@ namespace ekp {
     void SetIntegerOptimal(REAL val){ integerOptimal_ = val; }
     void SetRelaxedOptimal(REAL val){ relaxedOptimal_ = val; }
 
+    /**
+      * @brief This method should only be used by other methods which supposed
+      * to find an integer solution.
+    **/
     void SetSolution(INDEX i,INDEX val){ assert( i < nVars_); sol_[i] = val; }
 
     template<typename V>
@@ -66,8 +82,15 @@ namespace ekp {
       }
     }
 
-  private:
+    template<typename V>
+    void GetOrigSolution(V& sol){
+      sol.resize(nVars_);
+      for(INDEX i=0;i<nVars_;i++){
+        sol[sorted_[i]] = sol_[i];
+      }
+    }
 
+  private:
     std::vector<INDEX> sorted_;
     std::vector<REAL> costs_;
     std::vector<INDEX> weights_;
