@@ -32,6 +32,22 @@ std::map<std::string,std::vector<ekp::REAL>> GetProblem(std::string f){
 
 }
 
+void ekp_object_test(std::string f){
+
+  auto m = ekp::parser::GetEKPData(f);
+  auto ekp = ekp::ekp_object(m);
+
+  for( auto p = ekp.Begin();p != ekp.End();p = p->next ){
+    printf("i= %3d  c = %.6f w = %d \n",(int) p->var,p->cost,(int) p->weight);
+  }
+
+  ekp.sort();
+
+  for( auto p = ekp.Begin();p != ekp.End();p = p->next ){
+    printf("i= %3d  c = %.6f w = %d \n",(int) p->var,p->cost,(int) p->weight);
+  }
+}
+
 std::vector<ekp::REAL> ekp_test(std::string f){
 
   //std::string f = file.getValue();//"002_MiniExample.txt";
@@ -109,5 +125,6 @@ int main(int argc, char** argv){
   cmd.parse(argc,argv);
 
   ekp_test(file.getValue());
+  ekp_object_test(file.getValue());
   return 0;
 }

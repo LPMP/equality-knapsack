@@ -5,9 +5,81 @@
 #include <algorithm>
 #include <vector>
 #include <numeric>
-
+#include <memory>
 
 namespace ekp {
+
+
+  class ekp_object {
+  public:
+
+    struct knapsack_item {
+      REAL cost;
+      INDEX weight;
+      INDEX var;
+      knapsack_item* prev;
+      knapsack_item* next;
+    };
+
+    class iterator {
+    public:
+      iterator(knapsack_item* k) : item_(k) { }
+      iterator& operator++() {item_ = item_->next; return *this;}
+      iterator operator++(int) {item_ = item_->next; return *this;}
+    private:
+      knapsack_item* item_;
+    };
+
+    template<typename M>
+    ekp_object(M& m)
+      : ekp_object(m.costs,m.weights,m.b) { }
+
+    ekp_object(std::vector<REAL> c,std::vector<INDEX> w,INDEX b)
+      : nVars_(c.size()){
+      assert(nVars_ == w.size());
+
+      knapsack_item* cur = 0;
+      for(INDEX i=0;i<nVars_;i++){
+        std::shared_ptr<knapsack_item>  ptr(new knapsack_item);
+        items_.push_back(ptr);
+
+        ptr->cost = c[i];
+        ptr->weight = w[i];
+        ptr->var = i;
+        ptr->prev = cur;
+        if(i !=0 ){
+          cur->next = ptr.get();
+        } else {
+          begin_ = ptr.get();
+        }
+        cur = ptr.get();
+      }
+      std::shared_ptr<knapsack_item>  ptr(new knapsack_item);
+      items_.push_back(ptr);
+
+      cur->next = ptr.get();
+      end_ = ptr.get();
+    }
+
+    void sort(){
+      auto f = [this](knapsack_item i,knapsack_item j){
+        REAL iv = i.cost/((REAL) i.weight);
+        REAL jv = j.cost/((REAL) j.weight);
+        return iv < jv;
+      };
+      std::sort(begin_,end_,f);
+    }
+
+    auto Begin(){ return begin_; }
+    auto End(){ return end_; }
+
+  private:
+    INDEX nVars_;
+    std::vector<std::shared_ptr<knapsack_item>> items_;
+    knapsack_item* begin_;
+    knapsack_item* end_;
+
+  };
 
   /**
     @brief Stores c,w,b for an Equality Knapsack Problem
@@ -15,7 +87,7 @@ namespace ekp {
     Vectors: c (costs), w (weights) and the right-hand-side b.
 
     min_x <c,x> s.t. <w,x> = b, x_i = 0 or x_i = 1
-  */
+  **/
   class ekp_instance {
   public:
 

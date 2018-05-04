@@ -59,7 +59,7 @@ namespace ekp {
         REAL w = std::stod(in.string());
         INDEX wi = (INDEX) w;
         if( w != wi ){
-          throw pegtl::parse_error("Only integer values are allowed for b!", in );
+          throw pegtl::parse_error("Only integer values are allowed for w!", in );
         }
         v.weights.push_back(wi);
       }
