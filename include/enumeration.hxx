@@ -38,10 +38,10 @@ namespace ekp {
 #endif
                 if(highest_weight == nullptr) {
                     assert(no_active_elements() == 0);
-                    highest_weight = elem; 
+                    highest_weight = elem;
                 } else if(highest_weight->w <= elem->w) {
                     //std::cout << "in insert: new highest element = " << elem - &knapsack_elements[0] << "\n";
-                    highest_weight = elem; 
+                    highest_weight = elem;
                 }
                 assert(highest_weight_valid());
 
@@ -51,7 +51,7 @@ namespace ekp {
 
                 // add to weight list
                 elem->next_weight->prev_weight = elem;
-                elem->prev_weight->next_weight = elem; 
+                elem->prev_weight->next_weight = elem;
 
                 if(elem->next_weight != elem) {
                     assert(profit_sorting_valid(elem->next_profit));
@@ -69,11 +69,11 @@ namespace ekp {
                 elem->in_list = false;
 #endif
                 //std::cout << "removing element " << elem - &knapsack_elements[0] << "\n";
-                if(highest_weight == highest_weight->next_weight) { 
+                if(highest_weight == highest_weight->next_weight) {
                     highest_weight = nullptr;
-                } else if(elem == highest_weight) { 
+                } else if(elem == highest_weight) {
                     //std::cout << "in remove: new highest element = " << highest_weight->next_weight - &knapsack_elements[0] << "\n";
-                    highest_weight = highest_weight->next_weight; 
+                    highest_weight = highest_weight->next_weight;
                 }
                 assert(highest_weight_valid());
 
@@ -83,7 +83,7 @@ namespace ekp {
 
                 // remove from weight list
                 elem->prev_weight->next_weight = elem->next_weight;
-                elem->next_weight->prev_weight = elem->prev_weight; 
+                elem->next_weight->prev_weight = elem->prev_weight;
 
                 if(highest_weight != nullptr) {
                     assert(weight_sorting_valid() == true);
@@ -104,7 +104,7 @@ namespace ekp {
                         next_profit_element = highest_weight->next_profit;
                         //std::cout << "switching to next_profit_element " << element_number(next_profit_element) << "\n";
                         assert(next_profit_element->in_list);
-                    } 
+                    }
 
                     assert(highest_weight->covered == nullptr);
                     highest_weight->covered = elem->covered;
@@ -149,8 +149,8 @@ namespace ekp {
             }
 
     public:
-    enumeration (EKP& e) : e_(e) 
-    { 
+    enumeration (EKP& e) : e_(e)
+    {
         current_solution.reserve(e.numberOfVars());
         best_solution.reserve(e.numberOfVars());
 
@@ -179,7 +179,7 @@ namespace ekp {
 
         // (ii) sorted weight list
         auto weight_sort_func = [&e](const std::size_t i, const std::size_t j) {
-            return e.weight(i) > e.weight(j); 
+            return e.weight(i) > e.weight(j);
         };
         std::vector<std::size_t> weight_sort_indices(e.numberOfVars());
         std::iota(weight_sort_indices.begin(), weight_sort_indices.end(), 0);
@@ -202,7 +202,7 @@ namespace ekp {
             if(highest_weight->w < knapsack_elements[idx].w) {
                 highest_weight = &knapsack_elements[idx];
             }
-        } 
+        }
 
         assert(weight_sorting_valid());
         assert(highest_weight_valid());
@@ -219,9 +219,14 @@ namespace ekp {
 
         backtrack(&knapsack_elements[0]);
 
-        std::cout << "best solution = ";
-        for(auto x : best_solution) { std::cout << e_.index(x) << ","; }
-        std::cout << "\n";
+        // std::cout << "best solution = ";
+        // for(auto x : best_solution) { std::cout << e_.index(x) << ","; }
+        // std::cout << "\n";
+    }
+
+    void solution(std::vector<size_t>& x){
+      x.resize(e_.numberOfVars(),0);
+      for(auto i : best_solution ){ x[e_.index(i)] = 1; }
     }
 
     bool solution_valid(const std::vector<std::size_t>& sol) const
@@ -250,7 +255,7 @@ namespace ekp {
         for(auto* candidate=elem->next_profit; candidate!=elem; candidate=candidate->next_profit) {
             ++no_elements_in_list;
         }
-        return no_elements_in_list; 
+        return no_elements_in_list;
     }
 
     std::size_t length_of_weight_list() const
@@ -259,7 +264,7 @@ namespace ekp {
         for(auto* candidate=highest_weight->next_weight; candidate!=highest_weight; candidate=candidate->next_weight) {
             ++no_elements_in_list;
         }
-        return no_elements_in_list; 
+        return no_elements_in_list;
     }
 
 #ifndef NDEBUG
@@ -278,7 +283,7 @@ namespace ekp {
         for(auto* candidate=elem->next_profit; candidate!=elem; candidate=candidate->next_profit) {
             if(candidate->in_list == false) { return false; }
         }
-        return true; 
+        return true;
     }
 
     bool weight_list_active() const
@@ -287,7 +292,7 @@ namespace ekp {
         for(auto* candidate=highest_weight->next_profit; candidate!=highest_weight; candidate=candidate->next_profit) {
             if(candidate->in_list == false) { return false; }
         }
-        return true; 
+        return true;
     }
 #endif
 
@@ -323,10 +328,10 @@ namespace ekp {
         double p = elem->w/elem->c;
         for(auto* candidate=elem->next_profit; candidate!=elem; candidate=candidate->next_profit) {
             double p_next = candidate->w/candidate->c;
-            if(p_next > p) { 
+            if(p_next > p) {
                 highest_profit_elem = candidate;
                 p = p_next;
-            } 
+            }
         }
         for(auto* candidate=highest_profit_elem->next_profit; candidate!=highest_profit_elem; candidate=candidate->next_profit) {
             double p_next = candidate->w/candidate->c;
@@ -348,7 +353,7 @@ namespace ekp {
             return true;
         } else {
             return highest_weight == nullptr;
-        } 
+        }
 #endif
         return true;
     }
@@ -357,7 +362,7 @@ namespace ekp {
     {
         assert(elem->in_list);
         assert(remaining_capacity >= elem->w);
-        assert(elem->c >= 0.0); 
+        assert(elem->c >= 0.0);
 
         // first search for solution with current element in it
         const auto elem_no = std::distance(&knapsack_elements[0], elem);
@@ -387,24 +392,24 @@ namespace ekp {
             remaining_capacity = prev_remaining_capacity;
             partial_objective = prev_partial_objective;
 
-            return; 
-        } 
+            return;
+        }
 
         // check whether already assigned costs outweigh best solution cost or whether all elements have been considered (i.e. we are at a leave of the search tree)
-        if( partial_objective >=  best_objective || elem->next_profit == elem ) { 
+        if( partial_objective >=  best_objective || elem->next_profit == elem ) {
             assert(current_solution.back() == elem_no);
             current_solution.resize(current_solution.size()-1);
             remaining_capacity = prev_remaining_capacity;
             partial_objective = prev_partial_objective;
 
-            return; 
+            return;
         }
 
         remove(elem);
 
         assert(weight_sorting_valid());
         // remove all elements that cannot fit anymore. Add those to the covered list
-        next_profit_element = cover_elements(elem, next_profit_element, remaining_capacity); 
+        next_profit_element = cover_elements(elem, next_profit_element, remaining_capacity);
         assert(next_profit_element->in_list);
 
         // recurse
@@ -420,7 +425,7 @@ namespace ekp {
         // add all covered elements back again
         uncover_elements(elem);
         //std::cout << "recurse with element " << elem_no << " out\n";
-        backtrack(elem->next_profit); 
+        backtrack(elem->next_profit);
 
         insert(elem);
     }
@@ -442,4 +447,3 @@ namespace ekp {
 
 
 #endif // EKP_KNAPSACK_ENUMERATION_HXX
-

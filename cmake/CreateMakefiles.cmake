@@ -21,10 +21,9 @@ endif()
 #--------------------------------------------------------------
 # PYBIND11 Library
 #--------------------------------------------------------------
-
 add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/Dependencies/Source/PYBIND11_Project)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/Dependencies/Source/PYBIND11_Project/include)
-include_directories(/usr/include/python3.5)
+#include_directories(/usr/include/python3.6)
 
 #--------------------------------------------------------------
 # CATCH Library
@@ -78,4 +77,3 @@ FIND_PATH(PQXX_INCLUDE
   NAMES pqxx)
 endif()
 #--------------------------------------------------------------
-
