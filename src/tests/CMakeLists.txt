@@ -3,7 +3,8 @@ if(BUILD_TESTS)
 
   add_executable(test_enumeration test_enumeration.cpp)
 
-  add_executable(EKPObject EKP_Object_test.cxx)
+  add_executable(EKPObject object_check.cxx)
+  #add_executable(EKPObject EKP_Object_test.cxx)
   #pybind11_add_module(EKPSolvers EKP_Object_test_py.cxx)
 
   #target_sources(test_main PUBLIC temptest.cxx)

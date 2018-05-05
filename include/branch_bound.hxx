@@ -1,0 +1,10 @@
+#ifndef EKP_KNAPSACK_BRANCH_BOUND_HXX
+#define EKP_KNAPSACK_BRANCH_BOUND_HXX
+
+namespace ekp {
+
+  
+
+}
+
+#endif // EKP_KNAPSACK_BRANCH_BOUND_HXX
