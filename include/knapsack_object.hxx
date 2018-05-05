@@ -25,8 +25,12 @@ namespace ekp {
     public:
       iterator(knapsack_item* k) : item_(k) { }
       iterator& operator++() {item_ = item_->next; return *this;}
-      iterator operator++(int) {item_ = item_->next; return *this;}
-    private:
+      iterator operator++(int) {iterator tmp(*this); operator++(); return tmp;}
+      knapsack_item* operator*(){return item_;}
+      knapsack_item* operator->(){return item_;}
+      bool operator==(const iterator& rhs){return item_ == rhs.item_;}
+      bool operator!=(const iterator& rhs){return item_ != rhs.item_;}
+
       knapsack_item* item_;
     };
 
@@ -38,14 +42,24 @@ namespace ekp {
       : nVars_(c.size()){
       assert(nVars_ == w.size());
 
+      std::vector<INDEX> sorted(nVars_);
+      std::iota(sorted.begin(),sorted.end(),0);
+
+      auto f = [&](INDEX i,INDEX j){
+        REAL iv = c[i]/((REAL) w[i]);
+        REAL jv = c[j]/((REAL) w[j]);
+        return iv < jv;
+      };
+      std::sort(sorted.begin(),sorted.end(),f);
+
       knapsack_item* cur = 0;
       for(INDEX i=0;i<nVars_;i++){
         std::shared_ptr<knapsack_item>  ptr(new knapsack_item);
         items_.push_back(ptr);
 
-        ptr->cost = c[i];
-        ptr->weight = w[i];
-        ptr->var = i;
+        ptr->cost = c[sorted[i]];
+        ptr->weight = w[sorted[i]];
+        ptr->var = sorted[i];
         ptr->prev = cur;
         if(i !=0 ){
           cur->next = ptr.get();
@@ -61,17 +75,8 @@ namespace ekp {
       end_ = ptr.get();
     }
 
-    void sort(){
-      auto f = [this](knapsack_item i,knapsack_item j){
-        REAL iv = i.cost/((REAL) i.weight);
-        REAL jv = j.cost/((REAL) j.weight);
-        return iv < jv;
-      };
-      std::sort(begin_,end_,f);
-    }
-
-    auto Begin(){ return begin_; }
-    auto End(){ return end_; }
+    auto Begin(){ return iterator(begin_); }
+    auto End(){ return iterator(end_); }
 
   private:
     INDEX nVars_;

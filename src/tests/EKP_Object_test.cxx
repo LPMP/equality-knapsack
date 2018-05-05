@@ -37,14 +37,14 @@ void ekp_object_test(std::string f){
   auto m = ekp::parser::GetEKPData(f);
   auto ekp = ekp::ekp_object(m);
 
-  for( auto p = ekp.Begin();p != ekp.End();p = p->next ){
-    printf("i= %3d  c = %.6f w = %d \n",(int) p->var,p->cost,(int) p->weight);
+  for( size_t i=0;i<m.costs.size();i++ ){
+    printf("i= %3d  c = %.6f w = %6d (%.3e)\n",(int) i,m.costs[i],(int) m.weights[i],m.costs[i]/((double) m.weights[i]));
   }
 
-  ekp.sort();
+  printf("\n\n");
 
-  for( auto p = ekp.Begin();p != ekp.End();p = p->next ){
-    printf("i= %3d  c = %.6f w = %d \n",(int) p->var,p->cost,(int) p->weight);
+  for( auto p = ekp.Begin();p != ekp.End();p++){
+    printf("i= %3d  c = %.6f w = %6d (%.3e)\n",(int) p->var,p->cost,(int) p->weight,p->cost/((double) p->weight));
   }
 }
 
