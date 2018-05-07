@@ -20,8 +20,10 @@ void ekp_object_test(std::string f){
   for(auto p=ekp.Begin();p!=ekp.End();p++){
     printf("i= %3d  c = %.6f w = %8.0f (%.3e)\n",(int) (*p)->var,(*p)->cost,(*p)->weight,(*p)->cost/(*p)->weight);
   }
+  printf("\n");
 
-  
+  ekp.solve_relaxation();
+
 
 }
 

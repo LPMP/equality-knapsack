@@ -15,8 +15,6 @@ namespace ekp {
       REAL cost;
       REAL weight;
       INDEX var;
-      knapsack_item* next;
-      knapsack_item* prev;
     };
 
     template<typename M>
@@ -60,6 +58,7 @@ namespace ekp {
       };
       std::sort(items_.begin(),items_.end(),f);
     }
+
 
   private:
 
