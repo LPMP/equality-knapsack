@@ -4,7 +4,7 @@
 #include <knapsack_parser.hxx>
 #include <relax_solver/std_solver.hxx>
 #include <reduction/std_reduction.hxx>
-#include <incumbent/std_incumbent.hxx>
+//#include <incumbent/std_incumbent.hxx>
 #include <math.h>
 #include <algorithm>
 #include <tclap/CmdLine.h>
@@ -17,13 +17,25 @@ void ekp_object_test(std::string f){
   auto m = ekp::parser::GetEKPData(f);
   auto ekp = ekp::ekp_instance(m);
 
-  for(auto p=ekp.Begin();p!=ekp.End();p++){
-    printf("i= %3d  c = %.6f w = %8.0f (%.3e)\n",(int) (*p)->var,(*p)->cost,(*p)->weight,(*p)->cost/(*p)->weight);
+  auto p = ekp.Begin();
+  while( p != ekp.End() ){
+    printf("i= %3d  c = %.6f w = %d (%.3e)\n",(int) p->var,p->cost,(int) p->weight,p->cost/((ekp::REAL) p->weight));
+    p = p->next;
   }
-  printf("\n");
+  printf("\n\n");
 
-  ekp.solve_relaxation();
+  auto ekp_relax = ekp::std_relaxation<ekp::ekp_instance::knapsack_item>();
+  ekp_relax.solve(ekp.Begin(),ekp.End(),ekp.rhs());
 
+  printf("optimalcost(%d): %.5f -> (%d)\n\n",(int) ekp_relax.OptimalIndex()->var,
+  ekp_relax.OptimalCost(),(int) ekp_relax.isInteger());
+
+  ekp.SetRelaxCost(ekp_relax.OptimalCost());
+  if( !ekp_relax.isInteger() ){
+
+
+
+  }
 
 }
 

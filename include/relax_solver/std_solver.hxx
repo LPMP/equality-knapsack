@@ -6,51 +6,49 @@
 
 namespace ekp {
 
-  template<typename EKP>
+  template<typename ITEM>
   class std_relaxation{
   public:
-    std_relaxation(EKP& e) : e_(e),currentF_(e.numberOfVars()) { }
+    std_relaxation() { }
 
     REAL OptimalCost(){ return currentCost_; }
-    INDEX OptimalIndex(){ return currentF_; }
+    ITEM* OptimalIndex(){ return currentF_; }
     bool isInteger(){ return integer_; }
 
-    void solve(){
+    template<typename I>
+    void solve(I begin,I end,REAL rhs){
 
       INDEX w = 0;
       REAL z = 0;
 
-      for(INDEX i=0;i<e_.numberOfVars();i++){
-        e_.SetSolution(i,1);
-        if( w + e_.weight(i) > e_.rhs() ){
-          z += (e_.cost(i)/((REAL) e_.weight(i)))*(e_.rhs() - w);
+      auto it = begin;
+      while( it != end ){
+        if( w + it->weight > rhs ){
+          z += (it->cost/it->weight)*(rhs - w);
 
-          currentF_ = i;
+          currentF_ = it;
           currentCost_ = z;
-          e_.SetRelaxedOptimal(z);
           break;
         }
-        if( w + e_.weight(i) == e_.rhs() ){
-          z += e_.cost(i);
+        if( w + it->weight == rhs ){
+          z += it->cost;
 
           currentCost_ = z;
-          currentF_ = i;
+          currentF_ = it;
           integer_ = true;
-          e_.SetRelaxedOptimal(z);
-          e_.SetIntegerOptimal(z);
           break;
         }
-        z += e_.cost(i);
-        w += e_.weight(i);
+        z += it->cost;
+        w += it->weight;
+
+        it = it->next;
       }
 
     }
 
   private:
-    EKP& e_;
-
     REAL currentCost_ = EKPINF;
-    INDEX currentF_;
+    ITEM* currentF_;
     bool integer_ = false;
   };
 

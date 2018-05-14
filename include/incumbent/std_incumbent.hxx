@@ -5,12 +5,13 @@
 
 namespace ekp {
 
-  template<typename EKP>
+  template<typename ITEM>
   class std_incumbent {
   public:
 
-    std_incumbent(EKP& e,INDEX f) : e_(e),f_(f) { }
+    std_incumbent() {}
 
+    template<typename I>
     void find(){
 
       assert( f_ < e_.numberOfVars() - 1 );

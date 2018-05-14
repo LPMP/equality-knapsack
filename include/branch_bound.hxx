@@ -20,6 +20,18 @@ namespace ekp {
 
     }
 
+    void relax(){
+
+    }
+
+    void incumbent(){
+
+    }
+
+    void pegging(){
+      
+    }
+
     void solve(){
 
       // relax
