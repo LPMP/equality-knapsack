@@ -2,7 +2,6 @@
 #include "test_config.h"
 #include <knapsack_object.hxx>
 #include <knapsack_parser.hxx>
-#include <solve_relaxation.hxx>
 #include <math.h>
 #include <algorithm>
 #include <tclap/CmdLine.h>
@@ -75,8 +74,15 @@ void ekp_object_test(){ //std::string f){
     auto kc = ekp_copy.Begin();
     auto endc = ekp_copy.End();
 
-    
-
+    assert(kc->cost == c[0]);
+    assert(kc->weight == w[0]);
+    kc = kc->next;
+    assert(kc->cost == c[3]);
+    assert(kc->weight == w[3]);
+    kc = kc->next;
+    assert(kc->cost == c[1]);
+    assert(kc->weight == w[1]);
+    assert(kc->next == endc );
   }
 
 }

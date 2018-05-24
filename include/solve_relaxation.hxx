@@ -23,8 +23,10 @@ namespace ekp {
 
       auto it = begin;
       while( it != end ){
+        it->val = 1.0;
         if( w + it->weight > rhs ){
-          z += (it->cost/((REAL)it->weight))*(rhs - w);
+          it->val =((REAL) (rhs - w))/((REAL) it->weight);
+          z += it->val*it->cost;
 
           currentF_ = it;
           currentCost_ = z;

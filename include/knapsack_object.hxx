@@ -15,11 +15,10 @@ namespace ekp {
       REAL cost;
       INDEX weight;
       INDEX var;
-      INDEX val = 2;
-      INDEX sol = 2;
+      REAL val = 0.0;
 
-      knapsack_item* next;
-      knapsack_item* prev;
+      knapsack_item* next = NULL;
+      knapsack_item* prev = NULL;
       knapsack_item* master = NULL;
 
     };
@@ -50,7 +49,7 @@ namespace ekp {
     INDEX rhs() const { return rhs_; }
     INDEX numberOfVars() const { return nVars_; };
 
-    knapsack_item* item(INDEX i){ assert(i<nVars_); return items_[i]; }
+    knapsack_item* item(INDEX i){ assert(i<nVars_); return items_ptr_[i].get(); }
 
     knapsack_item* Begin() const { return begin_; }
     knapsack_item* End() const { return end_; }
@@ -64,20 +63,7 @@ namespace ekp {
         return iv < jv;
       };
       std::sort(items_.begin(),items_.end(),f);
-
-      auto p0 = items_.begin();
-      auto p1 = items_.begin(); p1++;
-
-      (*p0)->prev = NULL;
-      begin_ = *p0;
-      while ( p1 != items_.end() )
-      {
-        (*p0)->next = *p1;
-        (*p1)->prev = *p0;
-        p0++;p1++;
-      }
-      (*p0)->next = NULL;
-      end_ = NULL;
+      this->UpdateList();
     }
 
     void remove(knapsack_item* p){
@@ -87,8 +73,8 @@ namespace ekp {
       assert( p->val == 0 || p->val == 1 );
       rhs_ = rhs_ - p->val*p->weight;
 
-      prev->next = next;
-      next->prev = prev;
+      if( prev != NULL ){ prev->next = next; }
+      if( next != NULL ){ next->prev = prev; }
     }
 
     void restore(knapsack_item* p){
@@ -98,15 +84,45 @@ namespace ekp {
       assert( p->val == 0 || p->val == 1 );
       rhs_ = rhs_ + p->val*p->weight;
 
-      prev->next = p;
-      next->prev = p;
+      if( prev != NULL ){ prev->next = p; }
+      if( next != NULL ){ next->prev = p; }
     }
 
+    void solution(std::vector<REAL>& x){
+      x.resize(nVars_ ,0.0);
+      REAL val = 0.0;
+      cost_ = 0.0;
+      for( auto v : items_ ){
+        if( v->master == NULL){ val = v->val; }
+        else { val = v->master->val; }
+
+        assert( 0.0 <= val &&  val <= 1.0  );
+        x[v->var] = val;
+        cost_ += val*v->cost;
+      }
+    }
+
+    REAL cost(){ assert(cost_ < EKPINF); return cost_; }
 
   private:
 
+    void UpdateList(){
+      auto p0 = items_.begin();
+      auto p1 = items_.begin(); p1++;
+
+      begin_ = *p0;
+      end_ = NULL;
+      while ( p1 != items_.end() )
+      {
+        (*p0)->next = *p1;
+        (*p1)->prev = *p0;
+        p0++;p1++;
+      }
+    }
+
     INDEX nVars_;
     INDEX rhs_;
+    REAL cost_ = EKPINF;
     std::vector<knapsack_item*> items_;
     std::vector<std::shared_ptr<knapsack_item>> items_ptr_;
     knapsack_item* begin_;
@@ -138,6 +154,7 @@ namespace ekp {
       it = it->next;
     }
     nVars_ = items_.size();
+    this->UpdateList();
   }
 
 }
