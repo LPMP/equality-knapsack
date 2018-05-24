@@ -28,30 +28,6 @@ namespace ekp {
     ekp_instance(M& m)
     : ekp_instance(m.costs,m.weights,m.b) { }
 
-    ekp_instance(const ekp_instance& ekp)
-    : nVars_(ekp.numberOfVars()),rhs_(ekp.rhs()){
-
-      knapsack_item* it = ekp.Begin();
-      knapsack_item* end = ekp.Begin();
-      while( it != end ){
-        std::shared_ptr<knapsack_item>  item(new knapsack_item);
-        item->cost = it->cost;
-        item->weight = it->weight;
-        item->var = it->var;
-
-        if( it->master == NULL ){
-          item->master = it;
-        } else {
-          item->master = it->master;
-        }
-
-        items_.push_back(item.get());
-        items_ptr_.push_back(item);
-
-        it = it->next;
-      }
-    }
-
     ekp_instance(std::vector<REAL> c,std::vector<INDEX> w,INDEX b)
     : nVars_(c.size()),rhs_(b)
     {
@@ -92,6 +68,7 @@ namespace ekp {
       auto p0 = items_.begin();
       auto p1 = items_.begin(); p1++;
 
+      (*p0)->prev = NULL;
       begin_ = *p0;
       while ( p1 != items_.end() )
       {
@@ -99,14 +76,8 @@ namespace ekp {
         (*p1)->prev = *p0;
         p0++;p1++;
       }
-      std::shared_ptr<knapsack_item>  item(new knapsack_item);
-      items_ptr_.push_back(item);
-
-      (*p0)->next = item.get();
-      item->prev = *p0;
-
-      end_ = item.get();
-
+      (*p0)->next = NULL;
+      end_ = NULL;
     }
 
     void remove(knapsack_item* p){
@@ -142,6 +113,32 @@ namespace ekp {
     knapsack_item* end_;
   };
 
+
+  template<>
+  ekp_instance::ekp_instance(ekp_instance& ekp)
+    : rhs_(ekp.rhs()){
+
+    knapsack_item* it = ekp.Begin();
+    knapsack_item* end = ekp.End();
+    while( it != end ){
+      std::shared_ptr<knapsack_item>  item(new knapsack_item);
+      item->cost = it->cost;
+      item->weight = it->weight;
+      item->var = it->var;
+
+      if( it->master == NULL ){
+        item->master = it;
+      } else {
+        item->master = it->master;
+      }
+
+      items_.push_back(item.get());
+      items_ptr_.push_back(item);
+
+      it = it->next;
+    }
+    nVars_ = items_.size();
+  }
 
 }
 

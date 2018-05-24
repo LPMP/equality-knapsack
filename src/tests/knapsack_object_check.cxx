@@ -8,8 +8,6 @@
 #include <tclap/CmdLine.h>
 #include <map>
 
-
-
 void ekp_object_test(){ //std::string f){
 
   //auto m = ekp::parser::GetEKPData(f);
@@ -20,14 +18,66 @@ void ekp_object_test(){ //std::string f){
 
   auto ekp = ekp::ekp_instance(c,w,rhs);
 
-  auto p = ekp.Begin();
-  while( p != ekp.End() ){
-    printf("i= %3d  c = %.6f w = %d (%.3e)\n",(int) p->var,p->cost,(int) p->weight,p->cost/((double) p->weight));
-    p = p->next;
+
+  {
+    assert(ekp.rhs() == 5);
+
+    auto k = ekp.Begin();
+    auto end = ekp.End();
+
+    assert(k->cost == c[0]);
+    assert(k->weight == w[0]);
+    k = k->next;
+    assert(k->cost == c[2]);
+    assert(k->weight == w[2]);
+    k = k->next;
+    assert(k->cost == c[3]);
+    assert(k->weight == w[3]);
+    k = k->next;
+    assert(k->cost == c[1]);
+    assert(k->weight == w[1]);
+    assert( k->next == end );
   }
-  printf("\n\n");
 
+  {
+    auto k = ekp.Begin();
+    auto end = ekp.End();
+    k = k->next;
+    assert(k->val == 2);
+    k->val = 1;
+    ekp.remove(k);
+    assert( ekp.rhs() == rhs - k->weight );
+    ekp.restore(k);
+    assert( ekp.rhs() == rhs );
+  }
 
+  {
+    auto k = ekp.Begin();
+    auto end = ekp.End();
+    k = k->next;
+    k->val = 0;
+    ekp.remove(k);
+    assert( ekp.rhs() == rhs );
+    ekp.restore(k);
+    assert( ekp.rhs() == rhs );
+  }
+
+  {
+    auto k = ekp.Begin();
+    auto end = ekp.End();
+    k = k->next;
+    k->val = 1;
+    ekp.remove(k);
+
+    ekp::ekp_instance ekp_copy(ekp);
+    assert( ekp.numberOfVars() == ekp_copy.numberOfVars() + 1 );
+
+    auto kc = ekp_copy.Begin();
+    auto endc = ekp_copy.End();
+
+    
+
+  }
 
 }
 
