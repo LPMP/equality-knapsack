@@ -1,5 +1,5 @@
-#ifndef EKP_KNAPSACK_STD_SOLVER_HXX
-#define EKP_KNAPSACK_STD_SOLVER_HXX
+#ifndef EKP_KNAPSACK_SOLVE_RELAXATION_HXX
+#define EKP_KNAPSACK_SOLVE_RELAXATION_HXX
 
 #include <config.hxx>
 #include <math.h>
@@ -12,7 +12,7 @@ namespace ekp {
     std_relaxation() { }
 
     REAL OptimalCost(){ return currentCost_; }
-    ITEM* OptimalIndex(){ return currentF_; }
+    ITEM* OptimalElement(){ return currentF_; }
     bool isInteger(){ return integer_; }
 
     template<typename I>
@@ -24,7 +24,7 @@ namespace ekp {
       auto it = begin;
       while( it != end ){
         if( w + it->weight > rhs ){
-          z += (it->cost/it->weight)*(rhs - w);
+          z += (it->cost/((REAL)it->weight))*(rhs - w);
 
           currentF_ = it;
           currentCost_ = z;
@@ -55,4 +55,4 @@ namespace ekp {
 }
 
 
-#endif // EKP_KNAPSACK_STD_SOLVER_HXX
+#endif // EKP_KNAPSACK_SOLVE_RELAXATION_HXX

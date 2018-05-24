@@ -15,11 +15,12 @@ namespace ekp {
       REAL cost;
       INDEX weight;
       INDEX var;
-      INDEX val;
-      INDEX sol;
+      INDEX val = 2;
+      INDEX sol = 2;
 
       knapsack_item* next;
       knapsack_item* prev;
+      knapsack_item* master = NULL;
 
     };
 
@@ -27,8 +28,32 @@ namespace ekp {
     ekp_instance(M& m)
     : ekp_instance(m.costs,m.weights,m.b) { }
 
+    ekp_instance(const ekp_instance& ekp)
+    : nVars_(ekp.numberOfVars()),rhs_(ekp.rhs()){
+
+      knapsack_item* it = ekp.Begin();
+      knapsack_item* end = ekp.Begin();
+      while( it != end ){
+        std::shared_ptr<knapsack_item>  item(new knapsack_item);
+        item->cost = it->cost;
+        item->weight = it->weight;
+        item->var = it->var;
+
+        if( it->master == NULL ){
+          item->master = it;
+        } else {
+          item->master = it->master;
+        }
+
+        items_.push_back(item.get());
+        items_ptr_.push_back(item);
+
+        it = it->next;
+      }
+    }
+
     ekp_instance(std::vector<REAL> c,std::vector<INDEX> w,INDEX b)
-    : nVars_(c.size()),rhs_((REAL) b)
+    : nVars_(c.size()),rhs_(b)
     {
 
       for(INDEX i=0;i<nVars_;i++){
@@ -43,18 +68,18 @@ namespace ekp {
       this->sort();
     }
 
-    auto cost(INDEX i){ assert(i<nVars_); return items_[i]->cost; }
-    auto weight(INDEX i){ assert(i<nVars_); return items_[i]->weight; }
-    auto index(INDEX i){ assert(i<nVars_); return items_[i]->var; }
-    auto rhs(){ return rhs_; }
-    auto numberOfVars(){ return nVars_; };
+    REAL cost(INDEX i){ assert(i<nVars_); return items_[i]->cost; }
+    INDEX weight(INDEX i){ assert(i<nVars_); return items_[i]->weight; }
+    INDEX index(INDEX i){ assert(i<nVars_); return items_[i]->var; }
+    INDEX rhs() const { return rhs_; }
+    INDEX numberOfVars() const { return nVars_; };
 
     knapsack_item* item(INDEX i){ assert(i<nVars_); return items_[i]; }
 
-    auto Begin(){ return begin_; }
-    auto End(){ return end_; }
+    knapsack_item* Begin() const { return begin_; }
+    knapsack_item* End() const { return end_; }
 
-    void setCost(INDEX i,REAL c){ assert(i<nVars_); items_ptr_[i]->cost = c; }
+    //void setCost(INDEX i,REAL c){ assert(i<nVars_); items_ptr_[i]->cost = c; }
 
     void sort(){
       auto f = [&](knapsack_item* i,knapsack_item* j){
@@ -84,29 +109,23 @@ namespace ekp {
 
     }
 
-    auto GetRelaxCost(){ return relaxCost_; }
-    auto GetIntCost(){ return intCost_; }
-
-    void SetRelaxCost(REAL val){ relaxCost_ = val; }
-    void SetIntCost(REAL val){  intCost_ = val; }
-
     void remove(knapsack_item* p){
       auto prev = p->prev;
       auto next = p->next;
 
-      assert( p->sol == 0 || p->sol == 1 );
-      rhs_ = rhs_ - p->sol*p->weight;
+      assert( p->val == 0 || p->val == 1 );
+      rhs_ = rhs_ - p->val*p->weight;
 
       prev->next = next;
       next->prev = prev;
     }
 
-    void add(knapsack_item* p){
+    void restore(knapsack_item* p){
       auto prev = p->prev;
       auto next = p->next;
 
-      assert( p->sol == 0 || p->sol == 1 );
-      rhs_ = rhs_ + p->sol*p->weight;
+      assert( p->val == 0 || p->val == 1 );
+      rhs_ = rhs_ + p->val*p->weight;
 
       prev->next = p;
       next->prev = p;
@@ -121,10 +140,6 @@ namespace ekp {
     std::vector<std::shared_ptr<knapsack_item>> items_ptr_;
     knapsack_item* begin_;
     knapsack_item* end_;
-
-    REAL relaxCost_ = EKPINF;
-    REAL intCost_ = EKPINF;
-
   };
 
 
