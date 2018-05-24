@@ -42,7 +42,6 @@ void ekp_object_test(){ //std::string f){
     auto k = ekp.Begin();
     auto end = ekp.End();
     k = k->next;
-    assert(k->val == 2);
     k->val = 1;
     ekp.remove(k);
     assert( ekp.rhs() == rhs - k->weight );
