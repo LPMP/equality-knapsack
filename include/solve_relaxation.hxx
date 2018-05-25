@@ -22,6 +22,14 @@ namespace ekp {
       REAL z = 0;
 
       auto it = begin;
+
+      if( rhs == 0){
+        it = end;
+        integer_ = true;
+        currentF_ = begin;
+        currentCost_ = 0.0;
+      }
+
       while( it != end ){
         it->val = 1.0;
         if( w + it->weight > rhs ){
@@ -30,13 +38,16 @@ namespace ekp {
 
           currentF_ = it;
           currentCost_ = z;
+
+          integer_ = false;
           break;
         }
         if( w + it->weight == rhs ){
           z += it->cost;
 
-          currentCost_ = z;
           currentF_ = it;
+          currentCost_ = z;
+
           integer_ = true;
           break;
         }

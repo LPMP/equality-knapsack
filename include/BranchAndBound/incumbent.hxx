@@ -6,8 +6,9 @@
 namespace ekp {
 
   template<typename EKP,typename ITEM>
-  bool calculate_incument(EKP& e,ITEM* f,INDEX rhs,std::vector<REAL> x){
+  bool calculate_incumbent(EKP& e,ITEM* f,std::vector<REAL>& x){
     bool found = false;
+    INDEX rhs = e.rhs();
 
     auto it = e.Begin(); INDEX w = 0;
     while( it != f ){ w += it->weight; it->val = 1.0; it = it->next; }
@@ -21,7 +22,7 @@ namespace ekp {
     auto sum_cost = [&](){
       auto it = e.Begin();
       REAL k = 0;
-      while( it != f->next ){ k += it->cost; it = it->next; }
+      while( it != f->next ){ k += it->cost*it->val; it = it->next; }
       return k;
     };
 
