@@ -73,7 +73,7 @@ namespace ekp {
       assert( p->val == 0 || p->val == 1 );
       rhs_ = rhs_ - p->val*p->weight;
 
-      if( prev != NULL ){ prev->next = next; }
+      if( prev != NULL ){ prev->next = next; } else { begin_ = next; }
       if( next != NULL ){ next->prev = prev; }
     }
 
@@ -84,7 +84,7 @@ namespace ekp {
       assert( p->val == 0 || p->val == 1 );
       rhs_ = rhs_ + p->val*p->weight;
 
-      if( prev != NULL ){ prev->next = p; }
+      if( prev != NULL ){ prev->next = p; } else { begin_ = p; }
       if( next != NULL ){ next->prev = p; }
     }
 
@@ -111,7 +111,6 @@ namespace ekp {
       auto p1 = items_.begin(); p1++;
 
       begin_ = *p0;
-      end_ = NULL;
       while ( p1 != items_.end() )
       {
         (*p0)->next = *p1;
@@ -126,7 +125,7 @@ namespace ekp {
     std::vector<knapsack_item*> items_;
     std::vector<std::shared_ptr<knapsack_item>> items_ptr_;
     knapsack_item* begin_;
-    knapsack_item* end_;
+    knapsack_item* end_ = NULL;
   };
 
 

@@ -8,7 +8,30 @@
 #include <tclap/CmdLine.h>
 #include <map>
 #include <math.h>
+#include "BranchAndBound/incumbent.hxx"
 
+
+void ekp_incumbent_check(){
+  std::vector<double> c = {0.1,0.1,0.3,0.5};
+  std::vector<size_t> w = {2,1,3,2};
+  size_t rhs = 4;
+  auto ekp = ekp::ekp_instance(c,w,rhs);
+
+  ekp::std_relaxation<ekp::ekp_instance::knapsack_item> solve_relax;
+  solve_relax.solve(ekp.Begin(),ekp.End(),ekp.rhs());
+
+  printf("sol: ");
+  auto it = ekp.Begin();
+  while( it != ekp.End() ){ printf(" %.5f",it->val); it = it->next; }
+  printf("\n");
+
+  std::vector<double> incumbent;
+  bool found = calculate_incument(ekp,solve_relax.OptimalElement(),ekp.rhs(),incumbent);
+  if( found ){ printf("found!\n"); }
+
+
+
+}
 
 void ekp_relaxation_test(){
 
@@ -60,16 +83,17 @@ void ekp_relaxation_test(){
     double cost = 10.0*ekp.cost();
     cost = round(cost)/10.0;
 
-    assert( cost == 0.6 );
     assert( x[0] == 1 );
     assert( x[1] == 1 );
     assert( x[2] == 1 );
     assert( x[3] == 0 );
+    assert( cost == 0.6 );
   }
 }
 
 
 int main(int argc, char** argv){
   ekp_relaxation_test();
+  ekp_incumbent_check();
   return 0;
 }
