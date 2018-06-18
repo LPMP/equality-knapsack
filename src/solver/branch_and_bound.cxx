@@ -70,13 +70,6 @@ tuple branch_and_bound(std::vector<double> c,std::vector<size_t> w,size_t rhs){
 
 int main(int argc, char** argv){
 
-<<<<<<< HEAD
-  TCLAP::CmdLine cmd("Solve EKP with Branch and Bound", ' ', "0.1");
-  TCLAP::ValueArg<std::string> file("i","file","filename",true,"","string",cmd);
-  cmd.parse(argc,argv);
-
-  branch_and_bound_file(file.getValue());
-=======
   // TCLAP::CmdLine cmd("Solve EKP with Branch and Bound", ' ', "0.1");
   // TCLAP::ValueArg<std::string> file("i","file","filename",true,"","string",cmd);
   // cmd.parse(argc,argv);
