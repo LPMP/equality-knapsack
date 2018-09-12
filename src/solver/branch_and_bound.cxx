@@ -80,7 +80,6 @@ int main(int argc, char** argv){
   std::vector<size_t> w = {6, 12, 12, 8, 9, 8, 12, 12, 11, 11, 11, 12, 9, 6, 7, 9, 8, 8, 6, 7};
   assert( c.size() == w.size() );
   enumeration(c,w,61);
->>>>>>> jan_dev
 
   return 0;
 }
