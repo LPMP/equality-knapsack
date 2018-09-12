@@ -4,3 +4,4 @@ Python/.idea/*
 *.log
 .ipynb_checkpoints
 MinimalExamples/MiniExamples/*
+build_debug/*
