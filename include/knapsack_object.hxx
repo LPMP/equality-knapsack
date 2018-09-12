@@ -9,6 +9,7 @@
 #include <memory>
 #include <stack>
 #include <tuple>
+#include <math.h>
 
 namespace ekp {
 
@@ -130,8 +131,8 @@ namespace ekp {
           weight_removed += v->val*((REAL) v->weight);
         }
       }
-      
-      assert( weight_ == rhs_ + weight_removed );
+
+      assert( fabs(weight_ - rhs_ + weight_removed) < 1e-10 );
       assert( rhs_ == 0 || weight_ > 0.0 );
 
       for( auto v : fixed_ ){
@@ -143,12 +144,15 @@ namespace ekp {
       }
     }
 
+    /**
+    * \jantodo prüfen ob "if" Teil überhaupt stimmt -> removed oder fixed können ja auch auf 0 stehen
+    */
     bool feasible(REAL bestIntSol = EKPINF){
       if( begin_ == end_ ){
         assert( begin_ == NULL && end_ == NULL );
         INDEX w = 0;
-        for( auto p : removed_ ){  w += p->weight; }
-        for( auto p : fixed_ ){ w += std::get<3>(p); }
+        for( auto p : removed_ ){  w += p->weight; }   // <- evtl. noch *value?
+        for( auto p : fixed_ ){ w += std::get<3>(p); } // <- evtl. noch *value?
 
         return w == rhs_;
       } else {
@@ -172,7 +176,7 @@ namespace ekp {
           temp = temp && ck + zk < bestIntSol;
         }
 
-        return temp;
+        return temp && (w >= rhs_);
       }
     }
 

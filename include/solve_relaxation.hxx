@@ -57,6 +57,12 @@ namespace ekp {
         it = it->next;
       }
 
+      if( it != end ){
+        assert( fabs(w + it->val*it->weight - rhs) < 1e-10 );
+      } else {
+        assert( w  == rhs );
+      }
+
     }
 
   private:

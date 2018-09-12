@@ -66,6 +66,9 @@ namespace ekp {
       this->presolve(v);
     }
 
+    /**
+    * \jantodo kopiere item "e" erst im If Block
+    */
     template<typename Q>
     void add(EKP e,Q& node_queue){
       if( e.feasible(bestIntegerCost_) ){
