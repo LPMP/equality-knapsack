@@ -1,6 +1,6 @@
-ekp-debug/*
 manual/*
 Python/.idea/*
 *~
 *.log
 .ipynb_checkpoints
+MinimalExamples/MiniExamples/*
