@@ -30,8 +30,12 @@ namespace ekp {
         currentCost_ = 0.0;
       }
 
+      //printf("\n\n");
       while( it != end ){
         it->val = 1.0;
+
+        //printf("%d -> %.5f \n",(int) it->var,(double) it->val);
+
         if( w + it->weight > rhs ){
           it->val =((REAL) (rhs - w))/((REAL) it->weight);
           z += it->val*it->cost;
@@ -44,7 +48,6 @@ namespace ekp {
         }
         if( w + it->weight == rhs ){
           z += it->cost;
-
           currentF_ = it;
           currentCost_ = z;
 
@@ -56,6 +59,8 @@ namespace ekp {
 
         it = it->next;
       }
+
+      //printf("cost: %.5f \n",(double) currentCost_);
 
       if( it != end ){
         assert( fabs(w + it->val*it->weight - rhs) < 1e-10 );

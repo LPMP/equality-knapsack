@@ -43,6 +43,7 @@ namespace ekp {
 
           if( rhs == w && c < cost ){
             e.solution(x);
+            // for( auto v : x ){ printf("%d ",(int) v); } printf("\n");
             cost = c;
             found = true;
             assert( c == e.cost() );
@@ -67,6 +68,13 @@ namespace ekp {
     search();
     f->val = 1.0; w += f->weight;
     search();
+
+    if( found ){
+      for(auto it=e.Begin();it!=e.End();it=it->next){
+        it->val = x[it->var];
+      }
+    }
+    e.solution(x);
 
     return found;
   }

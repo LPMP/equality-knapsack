@@ -54,16 +54,32 @@ namespace ekp {
       if( found ){
         bestIntegerCost_ = e_.cost();
         count = knapsack_pegging(e_,relax_.OptimalElement(),bestRelaxedCost_);
-
-        // printf("\nfound incumbent and pegged %d vars \n\n",(int) count);
-        // for( auto v : x_ ){ printf(" %.6f",(double) v); }
-        // printf("  (%.5f)\n\n",bestIntegerCost_);
+        // print_solution(e_);
       }
+    }
+
+    void print_solution(EKP& e){
+      std::vector<double> x;
+      std::vector<char> xs;
+
+      e.solution(x);
+      e.solution_status(xs);
+
+      printf("\n");
+      for( auto v : xs ){ std::cout << v << " "; } std::cout << std::endl;
+      for( auto v : x ){ printf("%d ",(int) v); }
+      printf("  (%.5f/%.5f)\n\n",e.cost(),bestIntegerCost_);
     }
 
     void presolve(){
       visitor_empty v;
       this->presolve(v);
+    }
+
+    void print_object(EKP& e){
+      for( auto it=e.Begin();it!=e.End();it=it->next){
+        printf("%02d %3.6f  %d \n",(int) it->var,(double) it->cost,(int) it->weight);
+      }
     }
 
     /**
@@ -74,26 +90,15 @@ namespace ekp {
       if( e.feasible(bestIntegerCost_) ){
         solve_relax(e); e.solution(y_);
 
-        // for( auto v : y_ ){ printf(" %.6f",(double) v); }
-        // printf("  (%.6f)",e.cost());
-
         if( relax_.isInteger() && e.cost() < bestIntegerCost_ ){
           std::swap(x_,y_);
 
-          // printf(" *\n");
-
           bestIntegerCost_ = e.cost();
         } else if( !relax_.isInteger() ) {
-          // printf(" +\n");
           assert( e.cost() >= bestRelaxedCost_ );
           node_queue.push(std::make_tuple(e.cost(),std::move(e),relax_.OptimalElement()));
-        } else {
-          // printf(" (*)\n");
-        }
-      } else {
-        // printf(" # infeasible # \n");
-      }
-
+        } else { }
+      } else { }
     }
 
     template<typename VISITOR>
@@ -105,14 +110,19 @@ namespace ekp {
 
       std::priority_queue<node,std::vector<node>,decltype(compare)> node_queue(compare);
       EKP e_copy = e_;
-      solve_relax(e_copy); e_copy.solution(y_);
 
+      solve_relax(e_copy); e_copy.solution(y_);
       bestRelaxedCost_ = e_copy.cost();
+
+      if( relax_.isInteger() && e_copy.cost() < bestIntegerCost_ ){
+        std::swap(x_,y_);
+        bestIntegerCost_ = bestRelaxedCost_;
+      }
+
       node_queue.push(std::make_tuple(bestRelaxedCost_,std::move(e_copy),relax_.OptimalElement()));
 
       INDEX iter = 0;
       while( !node_queue.empty() ){
-        // printf("  %d ->  \n",(int) iter);
         bestRelaxedCost_ = std::get<0>(node_queue.top());
         auto e = std::get<1>(node_queue.top());
         if( bestIntegerCost_ - bestRelaxedCost_ > 1e-9 ){

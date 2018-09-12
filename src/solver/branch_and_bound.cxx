@@ -48,5 +48,7 @@ int main(int argc, char** argv){
 
   tuple result = branch_and_bound_file(file.getValue());
 
+  printf("RESULT: %.5f / %.5f \n",std::get<0>(result),std::get<1>(result));
+
   return 0;
 }
