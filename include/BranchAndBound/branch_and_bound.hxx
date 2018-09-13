@@ -54,7 +54,6 @@ namespace ekp {
       if( found ){
         bestIntegerCost_ = e_.cost();
         count = knapsack_pegging(e_,relax_.OptimalElement(),bestRelaxedCost_);
-        // print_solution(e_);
       }
     }
 

@@ -69,13 +69,6 @@ namespace ekp {
     f->val = 1.0; w += f->weight;
     search();
 
-    if( found ){
-      for(auto it=e.Begin();it!=e.End();it=it->next){
-        it->val = x[it->var];
-      }
-    }
-    e.solution(x);
-
     return found;
   }
 
