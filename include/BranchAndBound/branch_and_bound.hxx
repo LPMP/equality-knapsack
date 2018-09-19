@@ -16,7 +16,12 @@ namespace ekp {
   public:
     visitor_empty(){ }
 
-    void visit(){
+    template<typename EKP,typename SOLVER>
+    void visit(const INDEX iteration,EKP& e,const double relax,const double integer,SOLVER* s){
+
+    }
+
+    void presolve(const bool found,const INDEX count,const double relax,const double integer){
 
     }
 
@@ -27,8 +32,26 @@ namespace ekp {
   public:
     visitor_bb(){ }
 
-    void visit(){
+    template<typename EKP,typename SOLVER>
+    void visit(const INDEX iteration,EKP& e,const double relax,const double integer,SOLVER* s){
 
+      
+
+    }
+
+    void presolve(const bool found,const INDEX count,const double relax,const double integer){
+      printf("\n\n");
+
+      if( found ){
+        printf("Presolve found an integer solution with %.5f (%.5f)!\n",integer,relax);
+        printf("Pegging fixed %d variables \n",(int) count);
+
+      }
+      else{
+        printf("Presolve did not find any integer solution!\n");
+      }
+
+      printf("\n\n");
     }
 
   private:
@@ -55,6 +78,9 @@ namespace ekp {
         bestIntegerCost_ = e_.cost();
         count = knapsack_pegging(e_,relax_.OptimalElement(),bestRelaxedCost_);
       }
+
+      v.presolve(found,count,bestRelaxedCost_,bestIntegerCost_);
+
     }
 
     void print_solution(EKP& e){
@@ -133,21 +159,21 @@ namespace ekp {
           auto item = e.Begin();
           assert( item != NULL );
 
-          printf("%010d  %.5f / %.5f \n",(int) iter,bestRelaxedCost_,bestIntegerCost_);
+          v.visit(iter,e,bestRelaxedCost_,bestIntegerCost_,this);
 
           item->val = 0.0;
-          if( e.remove(item) ){
-            add(e,node_queue);
+          e.remove(item);
+          add(e,node_queue);
 
-            while( item != f->next ){
-              e.restore();
-              item->val = 1.0;
-              if( !e.remove(item) ){ break; }
-              item = item->next;
-              item->val = 0.0;
-              if( !e.remove(item) ){ break; }
-              add(e,node_queue);
-            }
+          while( item != f->next ){
+            e.restore();
+            item->val = 1.0;
+            if( e.rhs() < item->weight ){ break; }
+            e.remove(item);
+            item = item->next;
+            item->val = 0.0;
+            e.remove(item);
+            add(e,node_queue);
           }
         }
         else {

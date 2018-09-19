@@ -74,18 +74,16 @@ namespace ekp {
     }
 
     bool remove(knapsack_item* p){
-      if( rhs_ < p->val*p->weight ){ return false; }
-
       assert( p->removed == false );
+      assert( 0.0 == p->val || p->val == 1.0 );
+
       p->removed = true;
       removed_.push_back(p);
 
-      auto prev = p->prev;
-      auto next = p->next;
-
-      assert( p->val == 0 || p->val == 1 );
       rhs_ = rhs_ - p->val*p->weight;
 
+      auto prev = p->prev;
+      auto next = p->next;
       if( prev != NULL ){ prev->next = next; } else { begin_ = next; }
       if( next != NULL ){ next->prev = prev; }
 

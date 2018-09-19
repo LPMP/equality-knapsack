@@ -38,7 +38,23 @@ tuple branch_and_bound(std::vector<double> c,std::vector<size_t> w,size_t rhs){
   return std::make_tuple(bb.LowerBound(),bb.UpperBound(),x);
 }
 
+template<typename VISITOR>
+tuple branch_and_bound_file_visitor(std::string f){
 
+  auto m = ekp::parser::GetEKPData(f);
+  auto ekp = ekp::ekp_instance(m);
+
+  VISITOR v;
+
+  ekp::branch_and_bound bb(ekp);
+  bb.presolve(v);
+  bb.solve(v);
+
+  std::vector<double> x;
+  bb.Solution(x);
+
+  return std::make_tuple(bb.LowerBound(),bb.UpperBound(),x);
+}
 
 int main(int argc, char** argv){
 
@@ -46,7 +62,7 @@ int main(int argc, char** argv){
   TCLAP::ValueArg<std::string> file("i","file","filename",true,"","string",cmd);
   cmd.parse(argc,argv);
 
-  tuple result = branch_and_bound_file(file.getValue());
+  tuple result = branch_and_bound_file_visitor<ekp::visitor_bb>(file.getValue());
 
   printf("RESULT: %.5f / %.5f \n",std::get<0>(result),std::get<1>(result));
 
