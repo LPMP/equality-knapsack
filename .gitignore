@@ -3,5 +3,5 @@ Python/.idea/*
 *~
 *.log
 .ipynb_checkpoints
-MinimalExamples/*_SmallExamples/*
+MinimalExamples/*_*Examples/*
 build_debug/*

@@ -85,8 +85,9 @@ namespace ekp {
     * \jantodo kopiere item "e" erst im If Block
     */
     template<typename Q>
-    void add(EKP e,Q& node_queue){
-      if( e.feasible(bestIntegerCost_) ){
+    void add(EKP& e_orig,Q& node_queue){
+      if( e_orig.feasible(bestIntegerCost_) ){
+        EKP e = e_orig;
         solve_relax(e); e.solution(y_);
 
         if( relax_.isInteger() && e.cost() < bestIntegerCost_ ){
@@ -131,6 +132,8 @@ namespace ekp {
 
           auto item = e.Begin();
           assert( item != NULL );
+
+          printf("%010d  %.5f / %.5f \n",(int) iter,bestRelaxedCost_,bestIntegerCost_);
 
           item->val = 0.0;
           if( e.remove(item) ){
