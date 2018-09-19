@@ -56,7 +56,9 @@ namespace ekp {
     INDEX weight(INDEX i){ assert(i<nVars_); return items_[i]->weight; }
     INDEX index(INDEX i){ assert(i<nVars_); return items_[i]->var; }
     INDEX rhs() const { return rhs_; }
-    INDEX numberOfVars() const { return nVars_; };
+    INDEX numberOfVars() const { return nVars_; }
+    INDEX fixed() const { return fixed_.size(); }
+    INDEX removed() const { return removed_.size(); }
 
     knapsack_item* item(INDEX i){ assert(i<nVars_); return items_ptr_[i].get(); }
 

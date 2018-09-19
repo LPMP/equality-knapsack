@@ -16,7 +16,7 @@ for k=1:numel(oPaths)
   param.mip.tolerances.integrality = 1e-10;
   param.display = 'on';
   
-  d = 64;
+  d = 32;
   A = full(paralleltomo(d,0:10:179,d,d));
   A = A(sum(A>0,2) > 10,:);
   

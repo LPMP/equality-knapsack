@@ -18,7 +18,7 @@ namespace ekp {
 
     template<typename EKP,typename SOLVER>
     void visit(const INDEX iteration,EKP& e,const double relax,const double integer,SOLVER* s){
-
+      last_iter_ = iteration;
     }
 
     void presolve(const bool found,const INDEX count,const double relax,const double integer){
@@ -26,6 +26,7 @@ namespace ekp {
     }
 
   private:
+    INDEX last_iter_ = 0;
   };
 
   class visitor_bb {
@@ -35,8 +36,9 @@ namespace ekp {
     template<typename EKP,typename SOLVER>
     void visit(const INDEX iteration,EKP& e,const double relax,const double integer,SOLVER* s){
 
-      
-
+      if( iteration % 5000 == 0 ){
+        printf("%010d  %03d/%03d  %7.4f/%7.4f \n",(int) iteration, (int) e.fixed(),(int) e.numberOfVars(),relax,integer);
+      }
     }
 
     void presolve(const bool found,const INDEX count,const double relax,const double integer){
@@ -45,7 +47,6 @@ namespace ekp {
       if( found ){
         printf("Presolve found an integer solution with %.5f (%.5f)!\n",integer,relax);
         printf("Pegging fixed %d variables \n",(int) count);
-
       }
       else{
         printf("Presolve did not find any integer solution!\n");
@@ -102,7 +103,7 @@ namespace ekp {
     }
 
     void print_object(EKP& e){
-      for( auto it=e.Begin();it!=e.End();it=it->next){
+      for( auto it=e.Begin();it!=e.End();it=it->next ){
         printf("%02d %3.6f  %d \n",(int) it->var,(double) it->cost,(int) it->weight);
       }
     }
@@ -151,6 +152,9 @@ namespace ekp {
       while( !node_queue.empty() ){
         bestRelaxedCost_ = std::get<0>(node_queue.top());
         auto e = std::get<1>(node_queue.top());
+
+        v.visit(iter,e,bestRelaxedCost_,bestIntegerCost_,this);
+
         if( bestIntegerCost_ - bestRelaxedCost_ > 1e-9 ){
 
           auto f = std::get<2>(node_queue.top());
@@ -158,8 +162,6 @@ namespace ekp {
 
           auto item = e.Begin();
           assert( item != NULL );
-
-          v.visit(iter,e,bestRelaxedCost_,bestIntegerCost_,this);
 
           item->val = 0.0;
           e.remove(item);

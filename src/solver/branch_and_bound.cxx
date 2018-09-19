@@ -60,9 +60,17 @@ int main(int argc, char** argv){
 
   TCLAP::CmdLine cmd("Solve EKP with Branch and Bound", ' ', "0.1");
   TCLAP::ValueArg<std::string> file("i","file","filename",true,"","string",cmd);
+  TCLAP::SwitchArg verbose("v","verbose","turn on log",cmd);
+
   cmd.parse(argc,argv);
 
-  tuple result = branch_and_bound_file_visitor<ekp::visitor_bb>(file.getValue());
+  tuple result;
+  if( verbose.getValue() ){
+    result = branch_and_bound_file_visitor<ekp::visitor_bb>(file.getValue());
+  }
+  else {
+    result = branch_and_bound_file(file.getValue());
+  }
 
   printf("RESULT: %.5f / %.5f \n",std::get<0>(result),std::get<1>(result));
 
