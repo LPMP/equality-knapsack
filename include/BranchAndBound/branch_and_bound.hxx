@@ -18,7 +18,7 @@ namespace ekp {
 
     template<typename EKP,typename SOLVER>
     void visit(const INDEX iteration,EKP& e,const double relax,const double integer,SOLVER* s){
-      last_iter_ = iteration;
+
     }
 
     void presolve(const bool found,const INDEX count,const double relax,const double integer){
@@ -26,7 +26,6 @@ namespace ekp {
     }
 
   private:
-    INDEX last_iter_ = 0;
   };
 
   class visitor_bb {
@@ -77,11 +76,10 @@ namespace ekp {
       bool found = calculate_incumbent(e_,relax_.OptimalElement(),x_);
       if( found ){
         bestIntegerCost_ = e_.cost();
-        count = knapsack_pegging(e_,relax_.OptimalElement(),bestRelaxedCost_);
+        count = knapsack_pegging(e_,relax_.OptimalElement(),bestRelaxedCost_,x_);
       }
 
       v.presolve(found,count,bestRelaxedCost_,bestIntegerCost_);
-
     }
 
     void print_solution(EKP& e){

@@ -6,7 +6,7 @@
 namespace ekp {
 
   template<typename EKP,typename ITEM>
-  INDEX knapsack_pegging(EKP& e,ITEM* f,REAL relax_cost){
+  INDEX knapsack_pegging(EKP& e,ITEM* f,const REAL relax_cost,const std::vector<REAL>& x){
     INDEX count = 0;
     REAL int_cost = e.cost();
     assert( int_cost < EKPINF );
@@ -20,12 +20,12 @@ namespace ekp {
     };
 
     for(;it!=e.End();it=it->next){
-      assert( it->val == 0.0 || it->val == 1.0 );
-      if( it->val == 1.0 && peg((-1.0)*it->cost,it->weight) >= int_cost ){
+      assert( x[it->var] == 0.0 || x[it->var] == 1.0 );
+      if( x[it->var] == 1.0 && peg((-1.0)*it->cost,it->weight) >= int_cost ){
         e.remove(it);
         count++;
       }
-      if( it->val == 0.0 && peg(it->cost,(-1.0)*it->weight) >= int_cost ){
+      if( x[it->var] == 0.0 && peg(it->cost,(-1.0)*it->weight) >= int_cost ){
         e.remove(it);
         count++;
       }
