@@ -3,6 +3,9 @@
 
 #include <queue>
 #include <tuple>
+#include <iomanip>
+#include <sstream>
+#include <string>
 
 #include <config.hxx>
 #include <knapsack_object.hxx>
@@ -16,8 +19,12 @@ namespace ekp {
   public:
     visitor_empty(){ }
 
+    void Init(){
+
+    }
+
     template<typename EKP,typename SOLVER>
-    void visit(const INDEX iteration,EKP& e,const double relax,const double integer,SOLVER* s){
+    void visit(const INDEX iteration,const INDEX nodes,EKP& e,const double relax,const double integer,SOLVER* s){
 
     }
 
@@ -25,19 +32,91 @@ namespace ekp {
 
     }
 
+    void node_add(INDEX n){
+
+    }
+
+    void End(){
+
+    }
+
   private:
   };
 
-  class visitor_bb {
+  class visitor_bb : public visitor_empty {
   public:
     visitor_bb(){ }
 
-    template<typename EKP,typename SOLVER>
-    void visit(const INDEX iteration,EKP& e,const double relax,const double integer,SOLVER* s){
+    void Init(){
 
-      if( iteration % 5000 == 0 ){
-        printf("%010d  %03d/%03d  %7.4f/%7.4f \n",(int) iteration, (int) e.fixed(),(int) e.numberOfVars(),relax,integer);
+    }
+
+    template<typename EKP,typename SOLVER>
+    void visit(const INDEX iteration,const INDEX nodes,EKP& e,const double relax,const double integer,SOLVER* s){
+
+      std::stringstream out;
+      if( iteration % 1000 == 0 ){
+        if( head_ == 20 ){
+          out << "|" << std::setfill('-') << std::setw(135) << "|";
+          out << std::setfill(' ');
+          out << std::endl;
+
+          out << std::right << std::setw(10) << "Iteration" << " | ";
+          out << std::right << std::setw(11) << "fixed/free " << " | ";
+          out << std::right << std::setw(10) << "nodes   " << " | ";
+          out << std::right << std::setw(12) << "lower bound" << " | ";
+          out << std::right << std::setw(12) << "upper bound" << " | ";
+          out << std::right << std::setw(10) << "gap   " << " | ";
+          out << std::right << std::setw(10) << "infeas" << " | ";
+          out << std::right << std::setw(10) << "cuts  " << " | ";
+          out << std::right << std::setw(10) << "integer" << " | ";
+          out << std::right << std::setw(12) << "nodes (add)" << " | ";
+          //out << std::right << std::setw(9) << "flags    " ;
+          out << std::endl;
+
+          out << "|" << std::setfill('-') << std::setw(135) << "|";
+          out << std::setfill(' ');
+          out << std::endl;
+          head_ = 0;
+        }
+        //printf("%010d  %03d/%03d  %7.4f/%7.4f",(int) iteration, (int) e.fixed(),(int) e.numberOfVars(),relax,integer);
+        print_ = true;
+        head_++;
       }
+      out << std::right << std::setw(10) << iteration << " | ";
+      out << std::right << std::setw(5) << e.fixed() << "/"
+          << std::left  << std::setw(5) << e.numberOfVars() << " | ";
+      out << std::right << std::setw(10) << nodes << " | ";
+      out << std::fixed;
+      out << std::right << std::setw(12) << std::setprecision(6) << relax << " | ";
+      out << std::right << std::setw(12) << std::setprecision(6) << integer << " | ";
+      out << std::right << std::setw(10) << std::scientific << std::setprecision(3) << integer - relax << " | ";
+
+      out_ = out.str();
+
+      count_nodes_ = 0;
+    }
+
+    void node_add(INDEX n){
+      //if( n != 1 && n != 3 ){ print_ = true; }
+
+      if( n == 0 ){ count_integer_++; print_ = true;}
+      if( n == 1 ){ count_nodes_++; }
+      if( n == 2 ){ count_cuts_++; }
+      if( n == 3 ){ count_infeas_++; }
+    }
+
+    void End(){
+      if(print_){
+        std::cout << out_;
+        std::cout << std::right << std::setw(10) << count_infeas_ << " | ";
+        std::cout << std::right << std::setw(10) << count_cuts_ << " | ";
+        std::cout << std::right << std::setw(10) << count_integer_ << " | ";
+        std::cout << std::right << std::setw(12) << count_nodes_ << " | ";
+        std::cout << std::endl;
+        out_ = "";
+      }
+      print_ = false;
     }
 
     void presolve(const bool found,const INDEX count,const double relax,const double integer){
@@ -55,6 +134,14 @@ namespace ekp {
     }
 
   private:
+    bool print_ = false;
+    INDEX head_ = 20;
+    std::string out_ = "";
+
+    INDEX count_integer_ = 0;
+    INDEX count_cuts_ = 0;
+    INDEX count_infeas_ = 0;
+    INDEX count_nodes_ = 0;
   };
 
   class branch_and_bound{
@@ -110,24 +197,29 @@ namespace ekp {
     * \jantodo kopiere item "e" erst im If Block
     */
     template<typename Q>
-    void add(EKP& e_orig,Q& node_queue){
+    INDEX add(EKP& e_orig,Q& node_queue){
       if( e_orig.feasible(bestIntegerCost_) ){
         EKP e = e_orig;
         solve_relax(e); e.solution(y_);
 
-        if( relax_.isInteger() && e.cost() < bestIntegerCost_ ){
+        if( e.cost() > bestIntegerCost_ ){ return 2; } // cutoff
+
+        if( relax_.isInteger() ){
           std::swap(x_,y_);
 
           bestIntegerCost_ = e.cost();
-        } else if( !relax_.isInteger() ) {
+          return 0; // found integer
+        } else {
           assert( e.cost() >= bestRelaxedCost_ );
           node_queue.push(std::make_tuple(e.cost(),std::move(e),relax_.OptimalElement()));
-        } else { }
-      } else { }
+          return 1; // added node to queue
+        }
+      } else { return 3; } // infeasible
     }
 
     template<typename VISITOR>
     void solve(VISITOR v){
+      v.Init();
 
       auto compare = [](node l,node r){
         return std::get<0>(l) > std::get<0>(r);
@@ -151,7 +243,7 @@ namespace ekp {
         bestRelaxedCost_ = std::get<0>(node_queue.top());
         auto e = std::get<1>(node_queue.top());
 
-        v.visit(iter,e,bestRelaxedCost_,bestIntegerCost_,this);
+        v.visit(iter,node_queue.size(),e,bestRelaxedCost_,bestIntegerCost_,this);
 
         if( bestIntegerCost_ - bestRelaxedCost_ > 1e-9 ){
 
@@ -163,7 +255,7 @@ namespace ekp {
 
           item->val = 0.0;
           e.remove(item);
-          add(e,node_queue);
+          v.node_add(add(e,node_queue));
 
           while( item != f->next ){
             e.restore();
@@ -173,12 +265,13 @@ namespace ekp {
             item = item->next;
             item->val = 0.0;
             e.remove(item);
-            add(e,node_queue);
+            v.node_add(add(e,node_queue));
           }
         }
         else {
           break;
         }
+        v.End();
         iter++;
       }
     }
