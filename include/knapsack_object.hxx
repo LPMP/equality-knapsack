@@ -82,6 +82,7 @@ namespace ekp {
       p->removed = true;
       removed_.push_back(p);
 
+      assert( rhs_ >= p->val*p->weight );
       rhs_ = rhs_ - p->val*p->weight;
 
       auto prev = p->prev;
@@ -131,13 +132,11 @@ namespace ekp {
     **/
     void solution(std::vector<REAL>& x){
       x.resize(nVars_ + fixed_.size() ,0.0);
-      //printf("\nSolution:\n");
       cost_ = 0.0;
       weight_ = 0.0;
       REAL weight_removed = 0.0;
       for( auto v : items_ ){
         assert( 0.0 <= v->val &&  v->val <= 1.0  );
-        //printf("%d %.5f \n",(int) v->var,(double) v->val);
         x[v->var] = v->val;
         cost_ += v->val*v->cost;
         weight_ += v->val*((REAL) v->weight);
@@ -146,17 +145,17 @@ namespace ekp {
         }
       }
 
-      assert( fabs(weight_ - rhs_ + weight_removed) < 1e-10 );
+      assert( fabs(weight_ - rhs_ - weight_removed) < 1e-10 );
       assert( rhs_ == 0 || weight_ > 0.0 );
 
-      //printf("\n");
+      REAL weight_fixed = 0.0;
       for( auto v : fixed_ ){
         assert( 0 <= std::get<0>(v) && std::get<0>(v) < x.size() );
         assert( std::get<1>(v) == 0.0 || std::get<1>(v) == 1.0 );
-        //printf("%d -> %.5f \n",(int) std::get<0>(v),(double) std::get<1>(v));
         x[std::get<0>(v)] = std::get<1>(v);
         cost_ += std::get<1>(v)*std::get<2>(v);
         weight_ += std::get<1>(v)*std::get<3>(v);
+        weight_fixed += std::get<1>(v)*std::get<3>(v);
       }
     }
 
